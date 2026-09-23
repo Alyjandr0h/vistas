@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0d0e">
+  <meta name="color-scheme" content="dark">
+  <title>Vistas</title>
+  <meta name="description" content="Breathtaking photos of the world, and songs from jw.org.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vistas">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body class="is-loading">
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.3s-7.4-4.5-9.1-9.3C1.7 7.6 4 4.6 7.2 4.6c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.2 0 5.5 3 4.3 6.4-1.7 4.8-9.1 9.3-9.1 9.3z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5.5l11-2v12.5"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
+  <symbol id="i-frame" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.4"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.01"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5c2.4 0 3.5 1.6 5 5s2.6 5 5 5H21M3 17h3.5c1.2 0 2.1-.4 2.8-1.1M14.7 8.1c.7-.7 1.6-1.1 2.8-1.1H21M18 4l3 3-3 3M18 14l3 3-3 3"/></symbol>
+  <symbol id="i-prev-song" viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M19 5.5v13L9 12z" fill="currentColor"/></symbol>
+  <symbol id="i-next-song" viewBox="0 0 24 24"><path d="M18 5v14"/><path d="M5 5.5v13L15 12z" fill="currentColor"/></symbol>
+</svg>
+
+<!-- The slideshow. Each photo is a "slide" that fades in over the last one. -->
+<main id="stage" aria-label="Photo slideshow"></main>
+<p id="status" class="status" role="status"></p>
+
+<!-- Opening screen: her painting (by day, or at night), with the greeting written underneath -->
+<div id="splash" class="splash" hidden><img id="splash-art" alt="A painting of a mountain lake"></div>
+
+<!-- Every visit: a greeting in calligraphy that fades away on its own -->
+<div id="greeting" class="greeting" aria-live="polite" hidden>
+  <p id="greeting-text" class="script"></p>
+  <small id="greeting-date"></small>
+</div>
+
+<header class="topbar ui">
+  <button id="btn-saved" class="pill" aria-label="Saved photos">
+    <svg><use href="#i-heart"/></svg><span>Saved</span><b id="saved-count"></b>
+  </button>
+  <span class="spacer"></span>
+  <button id="btn-music-top" class="round only-sideways" aria-label="Music"><svg><use href="#i-music"/></svg></button>
+  <button id="btn-saver" class="pill" aria-label="Screen saver"><svg><use href="#i-frame"/></svg><span>Screen saver</span></button>
+  <button id="btn-info" class="round" aria-label="Help and settings"><svg><use href="#i-info"/></svg></button>
+</header>
+
+<footer class="panel ui">
+  <div class="caption">
+    <h1 id="cap-title">&nbsp;</h1>
+    <p id="cap-credit">&nbsp;</p>
+  </div>
+  <div class="timeline">
+    <button id="btn-pause" class="round small" aria-label="Pause the slideshow"><svg><use href="#i-pause"/></svg></button>
+    <div class="track"><i id="bar"></i></div>
+    <span id="paused-label" class="paused-label">Paused</span>
+  </div>
+  <nav class="controls" aria-label="Photo controls">
+    <button id="btn-back"><svg><use href="#i-back"/></svg><span>Back</span></button>
+    <button id="btn-save" class="primary"><svg><use href="#i-heart"/></svg><span id="save-label">Save</span></button>
+    <button id="btn-share"><svg><use href="#i-share"/></svg><span>Share</span></button>
+    <button id="btn-next"><svg><use href="#i-next"/></svg><span>Next</span></button>
+  </nav>
+  <div id="minibar" class="minibar">
+    <button id="mb-open" class="mb-open" aria-label="Open music">
+      <span class="mb-icon"><svg><use href="#i-music"/></svg></span>
+      <span class="mb-text"><b id="mb-title">Play music</b><small id="mb-sub">Songs from jw.org</small></span>
+    </button>
+    <button id="mb-play" class="round" aria-label="Play music"><svg><use href="#i-play"/></svg></button>
+  </div>
+</footer>
+
+<div id="clock" class="clock" aria-hidden="true"><span id="clock-time"></span><small id="clock-title"></small></div>
+
+<!-- Music -->
+<section id="sheet-music" class="sheet" aria-label="Music" inert>
+  <header>
+    <button class="round" data-close aria-label="Back to photos"><svg><use href="#i-down"/></svg></button>
+    <h2>Music</h2>
+  </header>
+  <div class="body">
+    <div id="np-art" class="np-art"></div>
+    <h3 id="np-title" class="np-title">Ready when you are</h3>
+    <p id="np-sub" class="np-sub">Tap play for songs from jw.org</p>
+    <div class="np-progress">
+      <div class="track"><i id="np-bar"></i></div>
+      <div class="np-times"><span id="np-pos"></span><span id="np-dur"></span></div>
+    </div>
+    <div class="big-controls">
+      <button id="m-back" class="round big" aria-label="Previous song"><svg><use href="#i-prev-song"/></svg></button>
+      <button id="m-play" class="round huge" aria-label="Play"><svg><use href="#i-play"/></svg></button>
+      <button id="m-next" class="round big" aria-label="Next song"><svg><use href="#i-next-song"/></svg></button>
+    </div>
+    <button id="m-fav" class="wide fav"><svg><use href="#i-heart"/></svg><span id="m-fav-label">Add to favorites</span></button>
+    <h4 class="list-title">Playlists</h4>
+    <div id="m-playlists" class="playlists" role="group" aria-label="Playlists"></div>
+    <h4 id="m-list-title" class="list-title">Recently played</h4>
+    <ul id="m-list" class="songs"></ul>
+    <p class="fine">Songs play straight from jw.org.</p>
+  </div>
+</section>
+
+<!-- Saved photos -->
+<section id="sheet-saved" class="sheet" aria-label="Saved photos" inert>
+  <header>
+    <button class="round" data-close aria-label="Back to photos"><svg><use href="#i-down"/></svg></button>
+    <h2>Saved photos</h2>
+  </header>
+  <div class="body">
+    <div id="saved-grid" class="grid"></div>
+    <p id="saved-empty" class="empty">Nothing saved yet.<br>Tap <b>Save</b> on any photo you love.</p>
+    <p class="fine">Saved photos are also in your <b>Gallery</b> app, in the <b>Download</b> album.</p>
+  </div>
+</section>
+
+<!-- One saved photo, big -->
+<section id="viewer" class="viewer" aria-label="Saved photo" inert>
+  <img id="viewer-img" alt="">
+  <header>
+    <button class="round" data-close aria-label="Back to saved photos"><svg><use href="#i-back"/></svg></button>
+  </header>
+  <footer>
+    <h2 id="viewer-title"></h2>
+    <p id="viewer-credit"></p>
+    <div class="viewer-actions">
+      <button id="v-share"><svg><use href="#i-share"/></svg><span>Share</span></button>
+      <button id="v-map"><svg><use href="#i-pin"/></svg><span>Where is this?</span></button>
+      <button id="v-remove"><svg><use href="#i-trash"/></svg><span>Remove</span></button>
+    </div>
+  </footer>
+</section>
+
+<!-- Welcome, help and settings -->
+<section id="sheet-info" class="sheet" aria-label="Help and settings" inert>
+  <header>
+    <h2>Help &amp; settings</h2>
+    <button class="round" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+  </header>
+  <div class="body">
+    <article id="note" class="note script" hidden></article>
+
+    <h3>How it works</h3>
+    <ul class="howto">
+      <li><svg><use href="#i-heart"/></svg><span><b>Save</b> puts the photo in your Gallery (on an iPad: tap <b>Save Image</b>) and in <b>Saved</b> here.</span></li>
+      <li><svg><use href="#i-back"/></svg><span><b>Back</b> brings back a photo you missed.</span></li>
+      <li><svg><use href="#i-share"/></svg><span><b>Share</b> sends it by text message or WhatsApp.</span></li>
+      <li><svg><use href="#i-frame"/></svg><span><b>Screen saver</b> plays the photos full screen. Tap anywhere to stop.</span></li>
+      <li><svg><use href="#i-music"/></svg><span><b>Play music</b> shuffles songs from jw.org. Open it to pick a playlist, and tap the heart on songs you love.</span></li>
+    </ul>
+    <p class="tip">Tip: turn your phone sideways to see the photos bigger.</p>
+
+    <div id="install-box" class="install" hidden>
+      <button id="btn-install" class="wide primary" hidden>Add to Home screen</button>
+      <p id="install-tip">To keep this on your Home screen: in Chrome, tap <b>⋮</b> (top right), then <b>Add to Home screen</b>.</p>
+    </div>
+
+    <h3>Settings</h3>
+    <div class="setting">
+      <span>How long each photo stays</span>
+      <div id="speed" class="seg three" role="group" aria-label="Photo speed">
+        <button data-s="40">Longer</button><button data-s="20">Normal</button><button data-s="10">Shorter</button>
+      </div>
+    </div>
+    <p class="fine">Photos are Featured Pictures from Wikimedia Commons, credited to each photographer. Songs play straight from jw.org. <span id="built"></span></p>
+
+    <button class="wide primary start" data-close>Done</button>
+  </div>
+</section>
+
+<!-- The very first visit: a note from you, written out in calligraphy -->
+<section id="letter" class="letter" aria-label="A note for you" hidden>
+  <div id="letter-text" class="paper script"></div>
+  <button id="letter-begin" class="begin">Open your gift</button>
+</section>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+# Funny and charming animals, hand-picked from Wikimedia Commons featured pictures.
+# One file per line; anything after # is ignored. Add or remove lines, then run:
+#     python3 tools/build_photos.py
+# (python3 tools/build_photos.py --animals makes a contact sheet of more candidates.)
+
+File:113 Cape ground squirrel standing from a hole in the Kalahari Desert of Namibia Photo by Giles Laurent.jpg
+File:Bradypus.jpg
+File:Chipmunk with stuffed cheeks in Prospect Park (05980).jpg
+File:Cynomys ludovicianus GNP 21.jpg
+File:Forester kangaroo (Macropus giganteus tasmaniensis) portrait Esk Valley.jpg
+File:Groundhog eating a tulip poplar (57104).jpg
+File:Kissing Prairie dog edit 3.jpg
+File:Koala in Zoo Duisburg.jpg
+File:Macropus giganteus - Brunkerville.jpg
+File:Squirrel posing.jpg
+File:Tamias striatus CT.jpg
+File:Xerus inauris.jpg
+File:Young Virginia Opossum.jpg
+File:184 Angolan giraffe licking its nose in Etosha National Park Photo by Giles Laurent.jpg
+File:Baby Goat in Margarita Island, Venezuela.jpg
+File:Boer goat444.jpg
+File:Camels at Aït Benhaddou, Saharan caravan route, Morocco (آيت بن حدّو, ⴰⵢⵜ ⵃⴰⴷⴷⵓ).jpg
+File:Dromadaire d'Algérie.jpg
+File:Hippopotamus in the Zambezi.jpg
+File:Pot-bellied pigs in Lisbon Zoo 2008.jpg
+File:Sheep lounging in the shade of a tree at Röe Castle.jpg
+File:Sus scrofa piglet.jpg
+File:021 Wild smiling harbor seal at Jökulsárlón (Iceland) Photo by Giles Laurent.jpg
+File:080 Baby cape fur seals fighting at Cape cross Photo by Giles Laurent.jpg
+File:Antarctic Sound-2016-Brown Bluff–Leopard seal (Hydrurga leptonyx) 05.jpg
+File:California sea lion nap time in La Jolla (70474).jpg
+File:Common seal (Phoca vitulina) 2.jpg
+File:Erdmännchen, Suricata suricatta 1.JPG
+File:Fawn and white Welsh Corgi puppy standing on rear legs and sticking out the tongue.jpg
+File:Fennec Fox Peek.jpg
+File:Hawaiian monk seal close-up (Neomonachus schauinslandi).jpg
+File:Lo sbadiglio.jpg
+File:LutraCanadensis fullres.jpg
+File:Meerkat (Suricata suricatta) Tswalu.jpg
+File:Mirounga angustirostris calling 1 edit.jpg
+File:Mirounga leonina.jpg
+File:Mlade lisice u rupi.jpg
+File:Mongoose pile.jpg
+File:Panthera leo yawn (Kgalagadi, 2012).jpg
+File:Play fight IMG 3018.JPG
+File:Raccoon (Procyon lotor) 2.jpg
+File:Red fox kits playing Bombay Hook (36455).jpg
+File:Sea-otter-morro-bay 13.jpg
+File:Sleeping cat on her back.jpg
+File:Suricata suricatta - Maroparque 02.jpg
+File:Two Red Panda Cubs in the Tree 01.jpg
+File:Vulpes lagopus in Iceland.jpg
+File:White dog sleeping on the floor with puppies after nursing in Don Det Laos.jpg
+File:006 Baby rhesus macaque in Jim Corbett National Park Photo by Giles Laurent.jpg
+File:Bonnet Macaque DSC 1125.jpg
+File:Cute Monkey cropped.jpg
+File:Geoffroy's spider monkey (Ateles geoffroyi yucatanensis) Peten 2.jpg
+File:Geoffroy's tamarin (Saguinus geoffroyi) 2.jpg
+File:Golden monkey (Cercopithecus kandti) head 2.jpg
+File:Juveniler Japanmakak (Macaca fuscata) im Jigokudani Yaen Kōen.jpg
+File:Long-tailed macaque (Macaca fascicularis) Labuk Bay.jpg
+File:Lémur ratón gris (Microcebus murinus), Parque Nacional de Lokobe, Nosy Be, Madagascar, 2025-09-21, DD 37.jpg
+File:Lémur rufo blanco y negro (Varecia variegata), Isla de los Lemures, Madagascar, 2025-09-17, DD 03.jpg
+File:Macaca fuscata juvenile yawning.jpg
+File:Macaca fuscata meditation.jpg
+File:Papio hamadryas (aka).jpg
+File:Proboscis monkey (Nasalis larvatus) female Labuk Bay.jpg
+File:Red ruffed lemur (Varecia rubra) head.jpg
+File:Ring tailed lemur portrait.jpg
+File:Saguinus oedipus (Linnaeus, 1758).jpg
+File:Saimiri boliviensis boliviensis - Karlsruhe Zoo 01.jpg
+File:Schimpanse, Pan troglodytes 3.JPG
+File:Sifaca coronado (Propithecus coronatus), Isla de los Lemures, Madagascar, Isla de los Lemures, Madagascar, 2025-09-17, DD 25.jpg
+File:Chamaeleo namaquensis (Namib-Naukluft, 2011).jpg
+File:003 Greater flamingo close-up in the Camargue Photo by Giles Laurent.jpg
+File:006 Toco toucan in Encontro das Águas State Park Photo by Giles Laurent.jpg
+File:2019-03-03 Chinstrap penguin on Barrientos Island, Antarctica.jpg
+File:Athene cunicularia -near Goiania, Goias, Brazil-8 edit.jpg
+File:Athene cunicularia 20110524 02.jpg
+File:Black Bovan.jpg
+File:Búho nival (Bubo scandiacus), Arcos de la Frontera, Cádiz, España, 2015-12-08, DD 03.JPG
+File:Eastern screech owl rehabilitated after eye injury (44333).jpg
+File:Eurasian eagle-owl (44088).jpg
+File:Gallus gallus domesticus - Vogelpark Steinen 03.jpg
+File:Hornbill Zazu Chitwa South Africa Luca Galuzzi 2004.JPG
+File:Magellanic penguin, Valdes Peninsula, e.jpg
+File:Northern potoo (Nyctibius jamaicensis mexicanus) Orange Walk.jpg
+File:Palm Cockatoo 0A2A7769.jpg
+File:Piquero patiazul (Sula nebouxii), isla Lobos, islas Galápagos, Ecuador, 2015-07-25, DD 35.JPG
+File:Rooster portrait2.jpg
+File:Strix nebulosa (Chouette lapone) - 393.jpg
+File:Sula nebouxii -Santa Cruz, Galapagos Islands, Ecuador-8 (1).jpg
+File:Tyto alba (Scopoli, 1769).jpg
+File:Ушастая сова.jpg
+File:02 Atlantic puffin on Treshnish Isles by Romaniviatores.jpg
+File:Fratercula arctica, Borgarfjörður eystri, Iceland, 20240717 1152 1838.jpg
+File:Dacelo novaeguineae - Vogelpark Steinen 01.jpg
+File:Wet kookaburra 6674 Crop Edit.jpg
+File:Pippit-closer.jpg
+File:Red-billed oxpecker (Buphagus erythrorhynchus) on impala (Aepyceros melampus).jpg
+File:Swallow August 2013-2.jpg
+File:Great white pelican (Pelecanus onocrotalus) head.jpg
+File:Pelecanus onocrotalus cleaning its feathers at sunset.jpg
