@@ -1,4 +1,4 @@
-# Vistas
+# Paradise
 
 A gift for Mom: breathtaking photos of the world, a few funny animals, and her songs from jw.org.
 It's a web app she adds to her phone's Home screen, so it opens full screen like any other app.
