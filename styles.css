@@ -118,8 +118,36 @@ svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; s
   box-shadow: 0 30px 60px -30px rgb(0 0 0 / .9), inset 0 0 60px rgb(160 130 90 / .14);
 }
 .paper p { margin: 0 0 .45em; }
-.paper .signature { margin: .6em 0 0; text-align: right; }
+.paper .signature { margin: .6em 0 0; text-align: right; padding-right: 18px; }
 .letter.done .ink { animation: none; -webkit-mask: none; mask: none; }
+
+/* Line ornaments: vines in the corners of her note, a flourish under the greeting.
+   They draw themselves in like a pen stroke (each path is pathLength=1). */
+.paper, .note { position: relative; }
+.vine {
+  position: absolute; width: 88px; height: 88px; pointer-events: none;
+  fill: none; stroke: currentColor; stroke-width: 1.25; opacity: .5;
+}
+.vine circle { fill: currentColor; stroke: none; }
+.note .vine { width: 70px; height: 70px; }
+.note { padding: 30px 30px 26px; }
+.note .signature { padding-right: 14px; }
+.vine.tl { top: 7px; left: 7px; }
+.vine.br { bottom: 7px; right: 7px; transform: rotate(180deg); }
+.vine path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.letter .vine path { stroke-dashoffset: 1; animation: draw 3.2s ease-in-out .4s forwards; }
+.letter .vine circle { opacity: 0; animation: appear .6s ease 3.2s forwards; }
+.letter.done .vine path { animation: none; stroke-dashoffset: 0; }
+.letter.done .vine circle { animation: none; opacity: 1; }
+#greeting-flourish { display: block; line-height: 0; }
+.flourish {
+  width: min(64vw, 300px); height: auto; margin: 4px 0 2px;
+  fill: none; stroke: currentColor; stroke-width: 1.5; opacity: .9;
+  filter: drop-shadow(0 1px 6px rgb(0 0 0 / .45));
+}
+.flourish path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.5s ease-in-out var(--draw-delay, 1s) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes appear { to { opacity: 1; } }
 .begin {
   height: 56px; padding: 0 30px; border-radius: 999px; background: var(--ink); color: var(--on-ink);
   font-size: 17px; font-weight: 700; opacity: 0; transform: translateY(8px); pointer-events: none;
