@@ -92,7 +92,8 @@ let showToken = 0, failures = 0, clockTimer = 0;
 
 // ------------------------------------------------------------------ start
 
-export async function init(elements) {
+// `startWithFirstPhoto`: the letter is showing, so Mount Shuksan is waiting behind it.
+export async function init(elements, { startWithFirstPhoto = false } = {}) {
   el = elements;
   bindGestures();
   document.addEventListener('visibilitychange', () => hold('away', document.hidden));
@@ -113,9 +114,9 @@ export async function init(elements) {
   saved = saved.map(s => ({ ...s, ...byPath.get(s.f), savedAt: s.savedAt }));   // pick up improved captions
   save('photos.saved', saved);
 
-  if (!load('photos.startedOnce', false)) {
-    save('photos.startedOnce', true);
-    addToHistory(data.first);     // Mount Shuksan from Picture Lake
+  if (startWithFirstPhoto) {
+    if (history[history.length - 1]?.f !== data.first.f) addToHistory(data.first);   // Mount Shuksan
+    at = history.length - 1;
     return show();
   }
   at = history.length - 1;

@@ -26,13 +26,10 @@ let greetTimer = 0;
 
 function boot() {
   navigator.serviceWorker?.register('sw.js').catch(() => {});
-  setUpSheets();
-  setUpPhotoButtons();
-  setUpMusic();
-  setUpInfo();
-  setUpInstall();
-  keepScreenAwake();
-  measureControls();
+  // A problem in one part (say, music) must never stop the letter or the photos from showing.
+  for (const setUp of [setUpSheets, setUpPhotoButtons, setUpMusic, setUpInfo, setUpInstall, keepScreenAwake, measureControls]) {
+    try { setUp(); } catch (err) { console.error(err); }
+  }
 
   const firstTime = !load('welcomed', false);
   if (firstTime) photos.hold('letter', true);
@@ -41,7 +38,7 @@ function boot() {
     bar: $('#bar'), pause: $('#btn-pause'), pauseIcon: $('#btn-pause use'),
     save: $('#btn-save'), saveLabel: $('#save-label'), savedCount: $('#saved-count'),
     clockTime: $('#clock-time'), clockTitle: $('#clock-title'),
-  }).catch(err => {
+  }, { startWithFirstPhoto: firstTime }).catch(err => {
     console.error(err);
     $('#status').textContent = 'Couldn’t load the photos. Check the internet, then close and reopen the app.';
   });
@@ -323,7 +320,7 @@ function renderMusic() {
   const list = playlist === 'favorites' ? favorites : music.recent();
   $('#m-list-title').textContent = playlist === 'favorites' ? 'Your favorites' : 'Recently played';
   rowSongs.clear();
-  $('#m-list').replaceChildren(...(list.length ? list.map(song => songRow(song, current)) : [emptyRow(mode)]));
+  $('#m-list').replaceChildren(...(list.length ? list.map(song => songRow(song, current)) : [emptyRow(playlist)]));
   renderSongTime();
 }
 
@@ -365,10 +362,10 @@ function songRow(song, current) {
   return li;
 }
 
-function emptyRow(mode) {
+function emptyRow(playlist) {
   const li = document.createElement('li');
   li.className = 'empty-row';
-  li.textContent = mode === 'favorites' ? 'No favorites yet. Tap the heart on a song you love.' : 'Songs you play will show up here.';
+  li.textContent = playlist === 'favorites' ? 'No favorites yet. Tap the heart on a song you love.' : 'Songs you play will show up here.';
   return li;
 }
 
