@@ -332,23 +332,38 @@ async function saveThroughShareSheet(p, loadedUrl) {
   await navigator.share({ files: [new File([blob], fileNameFor(p), { type: 'image/jpeg' })] });
 }
 
-export async function saveCurrent() {
-  if (!shown) return;
-  const { p } = shown;
-  if (isSaved(p)) return toast(isApple ? 'Already saved. It’s in your Photos.' : 'Already saved. It’s in your Gallery.');
-  el.save.disabled = true;
+export const isSavedPhoto = p => isSaved(p);
+
+// Saves any photo to the phone and to the Saved list (from the slideshow, or the music screen).
+// Returns true once it's saved.
+export async function savePhoto(p, loadedUrl) {
+  if (isSaved(p)) {
+    toast(isApple ? 'Already saved. It’s in your Photos.' : 'Already saved. It’s in your Gallery.');
+    return true;
+  }
   try {
-    if (isApple && navigator.canShare) await saveThroughShareSheet(p, shown.img.currentSrc);
+    if (isApple && navigator.canShare) await saveThroughShareSheet(p, loadedUrl);
     else await downloadToPhone(p);
     saved = [{ ...p, savedAt: Date.now() }, ...saved];
     save('photos.saved', saved);
     window.caches?.open('saved-photos').then(c => c.add(photoUrl(p, 330))).catch(() => {});
     toast(isApple ? 'Saved' : 'Saved to your Gallery');
+    return true;
   } catch (e) {
     if (e?.name !== 'AbortError') toast('Couldn’t save it. Check the internet and try again.');
+    return false;
+  } finally {
+    renderSaved();
+  }
+}
+
+export async function saveCurrent() {
+  if (!shown) return;
+  el.save.disabled = true;
+  try {
+    await savePhoto(shown.p, shown.img.currentSrc);
   } finally {
     el.save.disabled = false;
-    renderSaved();
   }
 }
 

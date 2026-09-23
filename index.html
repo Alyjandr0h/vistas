@@ -98,7 +98,9 @@
     <h2>Music</h2>
   </header>
   <div class="body">
-    <div id="np-art" class="np-art"></div>
+    <button id="np-art" class="np-art" aria-label="See this photo big, to save or share it">
+      <span class="np-art-hint"><svg><use href="#i-heart"/></svg>Save or share</span>
+    </button>
     <h3 id="np-title" class="np-title">Ready when you are</h3>
     <p id="np-sub" class="np-sub">Tap play for songs from jw.org</p>
     <div class="np-progress">
@@ -119,6 +121,19 @@
   </div>
 </section>
 
+<!-- One playlist: every song in it, to pick from (or just shuffle) -->
+<section id="sheet-playlist" class="sheet" aria-label="Playlist" inert>
+  <header>
+    <button class="round" data-close aria-label="Back to music"><svg><use href="#i-back"/></svg></button>
+    <h2 id="pl-title">Playlist</h2>
+  </header>
+  <div class="body">
+    <button id="pl-shuffle" class="wide primary"><svg><use href="#i-shuffle"/></svg>Shuffle all</button>
+    <p id="pl-count" class="fine pl-count"></p>
+    <ul id="pl-list" class="songs"></ul>
+  </div>
+</section>
+
 <!-- Saved photos -->
 <section id="sheet-saved" class="sheet" aria-label="Saved photos" inert>
   <header>
@@ -133,7 +148,7 @@
 </section>
 
 <!-- One saved photo, big -->
-<section id="viewer" class="viewer" aria-label="Saved photo" inert>
+<section id="viewer" class="viewer" aria-label="Photo" inert>
   <img id="viewer-img" alt="">
   <header>
     <button class="round" data-close aria-label="Back to saved photos"><svg><use href="#i-back"/></svg></button>
@@ -142,6 +157,7 @@
     <h2 id="viewer-title"></h2>
     <p id="viewer-credit"></p>
     <div class="viewer-actions">
+      <button id="v-save" class="primary"><svg><use href="#i-heart"/></svg><span>Save</span></button>
       <button id="v-share"><svg><use href="#i-share"/></svg><span>Share</span></button>
       <button id="v-map"><svg><use href="#i-pin"/></svg><span>Where is this?</span></button>
       <button id="v-remove"><svg><use href="#i-trash"/></svg><span>Remove</span></button>
@@ -165,7 +181,7 @@
       <li><svg><use href="#i-back"/></svg><span><b>Back</b> brings back a photo you missed.</span></li>
       <li><svg><use href="#i-share"/></svg><span><b>Share</b> sends it by text message or WhatsApp.</span></li>
       <li><svg><use href="#i-frame"/></svg><span><b>Screen saver</b> plays the photos full screen. Tap anywhere to stop.</span></li>
-      <li><svg><use href="#i-music"/></svg><span><b>Play music</b> shuffles songs from jw.org. Open it to pick a playlist, and tap the heart on songs you love.</span></li>
+      <li><svg><use href="#i-music"/></svg><span><b>Play music</b> shuffles songs from jw.org. Open it to pick a playlist or any song in it, and tap the heart on songs you love. Tap the photo there to save or share it.</span></li>
     </ul>
     <p class="tip">Tip: turn your phone sideways to see the photos bigger.</p>
 

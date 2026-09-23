@@ -276,12 +276,14 @@ function choosePlaylist(key) {
   bag = null;
 }
 
-// Picking a playlist starts playing from it right away.
-export function setPlaylist(key) {
-  if (key === 'favorites' && favorites.length < 2) {
+// Plays from a playlist: the song she picked, or a shuffle if she didn't pick one.
+// Either way, what comes next is a shuffle of that same playlist.
+export function playFrom(key, song) {
+  if (!song && key === 'favorites' && favorites.length < 2) {
     return toast(favorites.length ? 'Heart one more song to shuffle your favorites' : 'Tap the heart on songs you love first');
   }
   choosePlaylist(key);
+  if (song) return playSong(song);
   at = history.length - 1;
   next();
 }

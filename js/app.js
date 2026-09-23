@@ -273,7 +273,7 @@ function renderSavedGrid() {
     const tile = document.createElement('button');
     tile.style.backgroundImage = `url("${photos.photoUrl(p, 330)}")`;
     tile.setAttribute('aria-label', p.t);
-    tile.onclick = () => openViewer(p);
+    tile.onclick = () => openViewer(p, { fromSaved: true });
     return tile;
   }));
   $('#saved-empty').hidden = list.length > 0;
@@ -281,12 +281,26 @@ function renderSavedGrid() {
 
 const mapLink = p => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.g ? p.g.join(',') : p.t)}`;
 
-function openViewer(p) {
-  $('#viewer-img').src = photos.photoUrl(p, 1280);
+// A photo, big. From the Saved list it offers Remove; from the music screen it offers Save.
+function openViewer(p, { fromSaved = false, loadedUrl } = {}) {
+  $('#viewer-img').src = loadedUrl || photos.photoUrl(p, 1280);
   $('#viewer-img').alt = p.t;
   $('#viewer-title').textContent = p.t;
   $('#viewer-credit').textContent = `Photo: ${p.a} · ${p.l}`;
-  $('#v-share').onclick = () => photos.sharePhoto(p);
+  const saveButton = $('#v-save');
+  const showSaved = on => {
+    saveButton.classList.toggle('is-saved', on);
+    saveButton.querySelector('span').textContent = on ? 'Saved' : 'Save';
+  };
+  saveButton.hidden = fromSaved;
+  $('#v-remove').hidden = !fromSaved;
+  showSaved(photos.isSavedPhoto(p));
+  saveButton.onclick = async () => {
+    saveButton.disabled = true;
+    showSaved(await photos.savePhoto(p, loadedUrl));
+    saveButton.disabled = false;
+  };
+  $('#v-share').onclick = () => photos.sharePhoto(p, loadedUrl);
   $('#v-map').hidden = !p.g && !!p.u;          // Pexels photos don't say where they were taken
   $('#v-map').onclick = () => window.open(mapLink(p), '_blank', 'noopener');
   $('#v-remove').onclick = () => {
@@ -314,7 +328,18 @@ function measureControls() {
 
 // ------------------------------------------------------------------ music
 
-const rowSongs = new Map();
+const rowSongs = new Map();        // songs in the music screen's list
+const playlistSongs = new Map();   // songs in the open playlist
+let openPlaylistKey = null;
+
+// Taps on a song list: the heart (un)favorites the song; anywhere else on the row plays it.
+const songListTaps = (songs, play) => e => {
+  const button = e.target.closest('button[data-action]');
+  const song = button && songs.get(button.closest('li').dataset.id);
+  if (!song) return;
+  if (button.dataset.action === 'heart') music.toggleFavorite(song);
+  else play(song);
+};
 
 function setUpMusic() {
   music.init({
@@ -327,22 +352,23 @@ function setUpMusic() {
   });
   $('#mb-play').onclick = () => music.toggle();
   $('#mb-open').onclick = () => openSheet($('#sheet-music'));
+  // The photo on the music screen opens big, to save or share it.
+  $('#np-art').onclick = () => {
+    const p = photos.currentPhoto();
+    if (p) openViewer(p, { loadedUrl: photos.currentImageUrl() });
+  };
   $('#m-play').onclick = () => music.toggle();
   $('#m-next').onclick = () => music.next();
   $('#m-back').onclick = () => music.back();
   $('#m-fav').onclick = () => music.toggleFavorite();
   $('#m-playlists').onclick = e => {
     const button = e.target.closest('[data-playlist]');
-    if (button) music.setPlaylist(button.dataset.playlist);
+    if (button) openPlaylist(button.dataset.playlist);
   };
-  $('#m-list').onclick = e => {
-    const button = e.target.closest('button[data-action]');
-    const song = button && rowSongs.get(button.closest('li').dataset.id);
-    if (!song) return;
-    if (button.dataset.action === 'heart') music.toggleFavorite(song);
-    else music.playSong(song);
-  };
-  music.events.addEventListener('change', renderMusic);
+  $('#m-list').onclick = songListTaps(rowSongs, song => music.playSong(song));
+  $('#pl-list').onclick = songListTaps(playlistSongs, song => music.playFrom(openPlaylistKey, song));
+  $('#pl-shuffle').onclick = () => music.playFrom(openPlaylistKey);
+  music.events.addEventListener('change', () => { renderMusic(); renderPlaylistSheet(); });
   music.events.addEventListener('time', renderSongTime);
   $('#sheet-music').addEventListener('open', renderMusic);
   renderMusic();
@@ -366,6 +392,7 @@ function renderMusic() {
   $('#np-sub').textContent = current ? `${music.sourceName(current.c)} · jw.org` : `Tap play for ${music.playlistName(playlist)}`;
   const art = photos.currentImageUrl();
   $('#np-art').style.backgroundImage = art ? `url("${art}")` : '';
+  $('#np-art').disabled = !art;
 
   const fav = music.isFavorite(current);
   $('#m-fav').classList.toggle('on', fav);
@@ -395,8 +422,28 @@ function renderPlaylists(active) {
   }));
 }
 
-function songRow(song, current) {
-  rowSongs.set(song.id, song);
+// A playlist's own page: every song in it to scroll through and pick, or Shuffle all.
+function openPlaylist(key) {
+  openPlaylistKey = key;
+  $('#pl-title').textContent = music.playlistName(key);
+  renderPlaylistSheet();
+  $('#sheet-playlist .body').scrollTop = 0;
+  openSheet($('#sheet-playlist'));
+}
+
+function renderPlaylistSheet() {
+  if (!openPlaylistKey) return;
+  const list = music.songsIn(openPlaylistKey);
+  const { current } = music.state();
+  $('#pl-count').textContent = list.length ? `${list.length} songs · tap one to play it` : '';
+  playlistSongs.clear();
+  $('#pl-list').replaceChildren(...(list.length
+    ? list.map(song => songRow(song, current, playlistSongs))
+    : [emptyRow(openPlaylistKey, 'Getting the songs from jw.org…')]));
+}
+
+function songRow(song, current, songs = rowSongs) {
+  songs.set(song.id, song);
   const li = document.createElement('li');
   li.dataset.id = song.id;
   li.classList.toggle('now', song.id === current?.id);
@@ -418,10 +465,10 @@ function songRow(song, current) {
   return li;
 }
 
-function emptyRow(playlist) {
+function emptyRow(playlist, otherwise = 'Songs you play will show up here.') {
   const li = document.createElement('li');
   li.className = 'empty-row';
-  li.textContent = playlist === 'favorites' ? 'No favorites yet. Tap the heart on a song you love.' : 'Songs you play will show up here.';
+  li.textContent = playlist === 'favorites' ? 'No favorites yet. Tap the heart on a song you love.' : otherwise;
   return li;
 }
 
