@@ -17,7 +17,7 @@ const FROM_YOU = {
     'I realize I haven’t ever bought you nearly enough flowers over the years.',
     'So today, I’d like to give you a piece of the world.',
   ],
-  signature: 'With all my love',   // TODO(you): sign it the way you sign things to her
+  signature: ['Alex, your son,', 'The Gillyflower'],
 };
 
 const $ = selector => document.querySelector(selector);
@@ -74,7 +74,8 @@ function writeOut(el, text, startAt, msPerLetter = 42) {
   return t;
 }
 
-const letterLines = () => [...FROM_YOU.letter, FROM_YOU.signature].filter(Boolean);
+const letterLines = () => [...FROM_YOU.letter, ...[].concat(FROM_YOU.signature ?? [])].filter(Boolean);
+const isSignature = i => i >= FROM_YOU.letter.length;
 
 async function showLetter() {
   const box = $('#letter'), paper = $('#letter-text'), begin = $('#letter-begin');
@@ -84,7 +85,7 @@ async function showLetter() {
   let t = 500;
   for (const [i, line] of lines.entries()) {
     const p = document.createElement('p');
-    if (i === lines.length - 1 && FROM_YOU.signature) p.className = 'signature';
+    if (isSignature(i)) p.className = 'signature';
     paper.append(p);
     t = writeOut(p, line, t) + 380;
   }
@@ -386,7 +387,7 @@ function setUpInfo() {
     $('#note').replaceChildren(...lines.map((line, i) => {
       const p = document.createElement('p');
       p.textContent = line;
-      if (i === lines.length - 1 && FROM_YOU.signature) p.className = 'signature';
+      if (isSignature(i)) p.className = 'signature';
       return p;
     }));
     $('#note').hidden = false;
