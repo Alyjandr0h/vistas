@@ -412,10 +412,67 @@ svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; s
 .howto b { color: var(--ink); }
 .tip { color: var(--ink-2); font-size: 15px; margin: 8px 0 0; }
 .install { margin-top: 20px; }
-.install p { color: var(--ink-2); font-size: 15px; }
+.install p, .install-tip { color: var(--ink-2); font-size: 15px; }
+.install-tip ol { margin: 8px 0 0; padding-left: 22px; }
+.install-tip li { margin: 6px 0; }
+.install-tip b { color: var(--ink); }
 .setting { margin: 0 0 18px; }
 .setting > span { display: block; margin-bottom: 8px; color: var(--ink-2); font-size: 15px; }
 .start { margin-top: 28px; }
+
+/* ------------------------------------------------------------------ first, how to keep it as an app */
+
+/* What people Mom shares the link with see first: the steps, over the bottom of a tall photo. */
+.install-guide {
+  position: fixed; z-index: 35; inset: 0; display: flex; flex-direction: column;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 10px);
+  background: linear-gradient(to bottom, rgb(12 13 14 / 0) 20%, rgb(12 13 14 / .6) 34%, rgb(12 13 14 / .92) 50%, var(--bg) 72%);
+  transition: opacity .6s ease;
+}
+.install-guide.leaving { opacity: 0; pointer-events: none; }
+.guide-on .ui, .guide-on .status { opacity: 0; pointer-events: none; }
+.guide-card { width: min(100%, 440px); margin: auto auto 0; text-align: center; }
+.guide-icon {
+  width: 60px; height: 60px; border-radius: 15px; display: block; margin: 0 auto;
+  box-shadow: 0 10px 28px -8px rgb(0 0 0 / .85); animation: settle 1s ease both;
+}
+.guide-title {
+  margin: 6px 0 0; min-height: 1.15em; font-size: 62px; font-weight: 400; line-height: 1.15;
+  text-shadow: 0 2px 18px rgb(0 0 0 / .55);
+}
+.guide-flourish { display: block; line-height: 0; }
+.guide-card .flourish { display: block; width: min(56vw, 230px); margin: 0 auto; }
+.guide-lead { margin: 8px 0 20px; color: var(--ink-2); font-size: 16px; }
+.guide-how { animation: rise .8s .6s ease both; }
+.guide-ask { margin: 0 0 12px; font-size: 17px; font-weight: 650; line-height: 1.35; }
+.guide-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; counter-reset: step; }
+.guide-steps li {
+  counter-increment: step; display: flex; gap: 12px; align-items: center;
+  padding: 12px 14px; border-radius: 16px; background: rgb(255 255 255 / .08); border: 1px solid var(--line);
+  font-size: 16px; line-height: 1.45;
+}
+.guide-steps li::before {
+  content: counter(step); flex: none; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--ink); color: var(--on-ink); font-size: 15px; font-weight: 750;
+}
+.key {
+  display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px;
+  border-radius: 8px; background: rgb(255 255 255 / .18); font-weight: 800; line-height: 1; vertical-align: 1px;
+}
+svg.inline { width: 19px; height: 19px; vertical-align: -3px; }
+.guide-note { margin: 12px 0 0; color: var(--ink-3); font-size: 14.5px; }
+.guide-done { display: none; }
+.installed .guide-ask, .installed .guide-steps, .installed #guide-install, .installed .guide-note { display: none !important; }
+.installed .guide-done {
+  display: flex; gap: 12px; align-items: center; margin: 0; padding: 14px 16px; text-align: left;
+  border-radius: 16px; background: rgb(143 207 120 / .14); font-size: 16px; line-height: 1.45;
+}
+.guide-done svg { color: #8fcf78; }
+.guide-later {
+  min-height: 48px; margin-top: 8px; padding: 0 16px; color: var(--ink-2); font-size: 16px; font-weight: 600;
+  text-decoration: underline; text-underline-offset: 4px;
+}
 
 /* ------------------------------------------------------------------ toast */
 

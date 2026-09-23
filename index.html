@@ -7,6 +7,14 @@
   <meta name="color-scheme" content="dark">
   <title>Paradise</title>
   <meta name="description" content="Breathtaking photos of the world, and songs from jw.org.">
+  <!-- What the link looks like when it's sent in WhatsApp or a text message -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Paradise">
+  <meta property="og:description" content="Breathtaking photos of the world, and songs from jw.org. Tap to add it to your phone.">
+  <meta property="og:url" content="https://alyjandr0h.github.io/vistas/">
+  <meta property="og:image" content="https://alyjandr0h.github.io/vistas/icons/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -38,6 +46,9 @@
   <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5c2.4 0 3.5 1.6 5 5s2.6 5 5 5H21M3 17h3.5c1.2 0 2.1-.4 2.8-1.1M14.7 8.1c.7-.7 1.6-1.1 2.8-1.1H21M18 4l3 3-3 3M18 14l3 3-3 3"/></symbol>
   <symbol id="i-prev-song" viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M19 5.5v13L9 12z" fill="currentColor"/></symbol>
   <symbol id="i-next-song" viewBox="0 0 24 24"><path d="M18 5v14"/><path d="M5 5.5v13L15 12z" fill="currentColor"/></symbol>
+  <symbol id="i-ios-share" viewBox="0 0 24 24"><path d="M12 14.5V3M8 6.5l4-4 4 4"/><path d="M8.5 9.5h-2A1.5 1.5 0 005 11v8.5A1.5 1.5 0 006.5 21h11a1.5 1.5 0 001.5-1.5V11a1.5 1.5 0 00-1.5-1.5h-2"/></symbol>
+  <symbol id="i-add-home" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
 </svg>
 
 <!-- The slideshow. Each photo is a "slide" that fades in over the last one. -->
@@ -177,7 +188,7 @@
 
     <h3>How it works</h3>
     <ul class="howto">
-      <li><svg><use href="#i-heart"/></svg><span><b>Save</b> puts the photo in your Gallery (on an iPad: tap <b>Save Image</b>) and in <b>Saved</b> here.</span></li>
+      <li><svg><use href="#i-heart"/></svg><span><b>Save</b> puts the photo in your Gallery (on an iPad: tap <b>Save Image</b>) and in <b>Saved</b> here. Saved one by mistake? Tap the heart again.</span></li>
       <li><svg><use href="#i-back"/></svg><span><b>Back</b> brings back a photo you missed.</span></li>
       <li><svg><use href="#i-share"/></svg><span><b>Share</b> sends it by text message or WhatsApp.</span></li>
       <li><svg><use href="#i-frame"/></svg><span><b>Screen saver</b> plays the photos full screen. Tap anywhere to stop.</span></li>
@@ -186,8 +197,8 @@
     <p class="tip">Tip: turn your phone sideways to see the photos bigger.</p>
 
     <div id="install-box" class="install" hidden>
-      <button id="btn-install" class="wide primary" hidden>Add to Home screen</button>
-      <p id="install-tip">To keep this on your Home screen: in Chrome, tap <b>⋮</b> (top right), then <b>Add to Home screen</b>.</p>
+      <button id="btn-install" class="wide primary" hidden><svg><use href="#i-add-home"/></svg>Add to Home screen</button>
+      <div id="install-tip" class="install-tip"></div>
     </div>
 
     <h3>Settings</h3>
@@ -197,7 +208,7 @@
         <button data-s="40">Longer</button><button data-s="20">Normal</button><button data-s="10">Shorter</button>
       </div>
     </div>
-    <p class="fine">Photos are Featured Pictures from Wikimedia Commons, credited to each photographer. Songs play straight from jw.org. <span id="built"></span></p>
+    <p class="fine">Photos come from Pexels and Wikimedia Commons, credited to each photographer. Songs play straight from jw.org. <span id="built"></span></p>
 
     <button class="wide primary start" data-close>Done</button>
   </div>
@@ -207,6 +218,24 @@
 <section id="letter" class="letter" aria-label="A note for you" hidden>
   <div id="letter-text" class="paper script"></div>
   <button id="letter-begin" class="begin">Open your gift</button>
+</section>
+
+<!-- Someone Mom shared it with, opening her link in a browser: first, how to keep it as an app -->
+<section id="install-guide" class="install-guide" aria-label="Add Paradise to your Home screen" hidden>
+  <div class="guide-card">
+    <img class="guide-icon" src="icons/icon-192.png" alt="" width="60" height="60">
+    <h2 id="guide-title" class="guide-title script"></h2>
+    <span id="guide-flourish" class="guide-flourish"></span>
+    <p class="guide-lead">Breathtaking photos of the world, and songs from jw.org.</p>
+    <div class="guide-how">
+      <p id="guide-ask" class="guide-ask"></p>
+      <button id="guide-install" class="wide primary" hidden><svg><use href="#i-add-home"/></svg>Add to Home screen</button>
+      <ol id="guide-steps" class="guide-steps"></ol>
+      <p id="guide-note" class="guide-note" hidden></p>
+      <p class="guide-done"><svg><use href="#i-check"/></svg><span><b>All set!</b> Paradise is on your Home screen now. Open it from there, like any app.</span></p>
+    </div>
+    <button id="guide-later" class="guide-later">Not now, just look around</button>
+  </div>
 </section>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

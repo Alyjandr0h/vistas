@@ -18,6 +18,9 @@ It's a web app she adds to her phone's Home screen, so it opens full screen like
 
 - **Share Paradise with someone** (in Help) sends the plain link. Whoever opens it gets the same app
   without the personal parts: no letter, no "Mom" in the greeting, no note in Help.
+- Opened in a browser, the link starts with the steps for adding it to the Home screen, worded for
+  that browser (one big button where Chrome or Samsung Internet can install it in one tap). Opened
+  from the Home screen, it's an app already, so the steps never show there, and never on Mom's phone.
 - Mom's phone keeps everything: any phone that used the app before sharing existed counts as hers.
 - On a new phone of hers, open **…/vistas/?for=mom** once (keep that link to yourself) and the
   letter plays there too.

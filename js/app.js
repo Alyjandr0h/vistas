@@ -75,26 +75,30 @@ const forMom = whoIsThis() === 'mom';
 function boot() {
   navigator.serviceWorker?.register('sw.js').catch(() => {});
   // A problem in one part (say, music) must never stop the letter or the photos from showing.
-  for (const setUp of [setUpSheets, setUpPhotoButtons, setUpMusic, setUpInfo, setUpInstall, keepScreenAwake, measureControls]) {
+  for (const setUp of [setUpSheets, setUpPhotoButtons, setUpMusic, setUpInfo, setUpInstall, keepSavesSafe, keepScreenAwake, measureControls]) {
     try { setUp(); } catch (err) { console.error(err); }
   }
 
   const firstTime = !load('welcomed', false);
   const letterFirst = forMom && firstTime;
+  const guideFirst = !forMom && !isInstalledApp();
   if (letterFirst) photos.hold('letter', true);
+  if (guideFirst) photos.hold('guide', true);
   photos.init({
     stage: $('#stage'), status: $('#status'), title: $('#cap-title'), credit: $('#cap-credit'),
     bar: $('#bar'), pause: $('#btn-pause'), pauseIcon: $('#btn-pause use'),
     save: $('#btn-save'), saveLabel: $('#save-label'), savedCount: $('#saved-count'),
     clockTime: $('#clock-time'), clockDate: $('#clock-date'),
-  }, { startWithFirstPhoto: letterFirst }).catch(err => {
+  }, { startWithFirstPhoto: letterFirst, startTall: guideFirst }).catch(err => {
     console.error(err);
     $('#status').textContent = 'Couldn’t load the photos. Check the internet, then close and reopen the app.';
   });
 
   if (letterFirst) showLetter();
+  else if (guideFirst) showInstallGuide();
   else if (firstTime) {
-    // Someone Mom shared it with: a welcome instead of the letter, then how it works.
+    // Someone Mom shared it with, opening it from their Home screen the first time: a welcome
+    // instead of the letter, then how it works.
     openingScreen('Welcome to Paradise', () => { save('welcomed', true); openSheet($('#sheet-info')); });
   } else openingScreen();
   greetAgainAfterABreak();
@@ -297,7 +301,7 @@ function openViewer(p, { fromSaved = false, loadedUrl } = {}) {
   showSaved(photos.isSavedPhoto(p));
   saveButton.onclick = async () => {
     saveButton.disabled = true;
-    showSaved(await photos.savePhoto(p, loadedUrl));
+    showSaved(await photos.toggleSaved(p, loadedUrl));
     saveButton.disabled = false;
   };
   $('#v-share').onclick = () => photos.sharePhoto(p, loadedUrl);
@@ -483,11 +487,11 @@ function renderSongTime() {
 
 // ------------------------------------------------------------------ help and settings
 
-// Shares the plain link (never the ?for=mom one), so whoever gets it has their own copy.
+// Shares the plain link (never the ?for=mom one), so whoever gets it has their own copy. The link
+// opens on the steps for keeping it on their Home screen, so the message itself stays short.
 async function shareApp() {
   const url = location.origin + location.pathname;
-  const text = 'Paradise: breathtaking photos of the world, and songs from jw.org. '
-    + 'Open the link in Chrome, then tap ⋮ and “Add to Home screen” to keep it as an app.';
+  const text = 'Paradise: breathtaking photos of the world, and songs from jw.org. Tap the link to add it to your phone.';
   try {
     if (navigator.share) await navigator.share({ title: 'Paradise', text, url });
     else {
@@ -525,26 +529,146 @@ function setUpInfo() {
   markSpeed();
 }
 
-function setUpInstall() {
-  let installPrompt = null;
-  $('#install-box').hidden = navigator.standalone || matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
-  if (photos.onApple()) {
-    $('#install-tip').innerHTML = 'To keep this on your Home Screen: in Safari, tap <b>Share</b> (the square with the arrow), then <b>Add to Home Screen</b>.';
+// ------------------------------------------------------------------ keeping it as an app
+
+let installPrompt = null;     // the browser's own one-tap "Install" offer, when it makes one
+
+const isInstalledApp = () => navigator.standalone === true
+  || matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
+
+// The steps for putting Paradise on the Home screen, in the words this browser uses. (Chrome 150
+// renamed "Add to Home screen" to "Install and create shortcut"; older phones still show the old name.)
+const key = symbol => `<b class="key">${symbol}</b>`;
+const SHARE_BUTTON = '<b>Share</b> <svg class="inline"><use href="#i-ios-share"/></svg>';
+
+function installSteps() {
+  const ua = navigator.userAgent;
+  const android = /Android/.test(ua);
+  const ask = 'Add it to your Home screen, so it opens like an app:';
+  // Facebook, Instagram and other apps open links in a little browser of their own, which can't install anything.
+  if (/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Line\/|Snapchat|musical_ly|TikTok|Twitter|LinkedInApp|Pinterest|GSA\/|; wv\)/.test(ua)) {
+    return {
+      ask: 'This opened inside another app, which can’t add it to your Home screen. Open it in your browser first:',
+      steps: android
+        ? [`Tap ${key('⋮')} at the top right.`, 'Tap <b>Open in Chrome</b> (or <b>Open in browser</b>).', 'Then follow the steps you’ll see there.']
+        : [`Tap ${key('⋯')} in the corner of the screen.`, 'Tap <b>Open in Safari</b> (or <b>Open in browser</b>).', 'Then follow the steps you’ll see there.'],
+    };
   }
+  if (photos.onApple()) {
+    const inSafari = !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+    const where = /iPad|Macintosh/.test(ua) ? 'at the top right' : 'at the bottom of the screen';
+    return {
+      ask: 'Add it to your Home Screen, so it opens like an app:',
+      steps: [
+        inSafari ? `Tap ${SHARE_BUTTON} ${where}. Don’t see it? Tap ${key('⋯')} first.` : `Tap ${SHARE_BUTTON} next to the web address.`,
+        'Scroll down and tap <b>Add to Home Screen</b>.',
+        'Tap <b>Add</b>.',
+      ],
+      note: 'Not in the list? Open this link in Safari and try there.',
+    };
+  }
+  if (!android) {
+    return {
+      ask: 'Paradise is made for phones and tablets.',
+      steps: ['Open this same link on your phone.', 'It will show you how to keep Paradise on your Home screen.'],
+      later: 'Look around here',
+    };
+  }
+  if (/SamsungBrowser/.test(ua)) {
+    return { ask, steps: ['Tap the menu button at the bottom right.', 'Tap <b>Add page to</b>.', 'Tap <b>Home screen</b>, then <b>Add</b>.'] };
+  }
+  if (/Firefox/.test(ua)) {
+    return { ask, steps: [`Tap ${key('⋮')} in the corner of the screen.`, 'Tap <b>Add app to Home screen</b> (or <b>Install</b>).', 'Tap <b>Add</b>.'] };
+  }
+  if (!/Chrome/.test(ua) || /EdgA|OPR|YaBrowser|DuckDuckGo/.test(ua)) {
+    return {
+      ask,
+      steps: [`Open your browser’s menu (${key('⋮')} or ${key('≡')}).`, 'Tap <b>Install</b> or <b>Add to Home screen</b>.'],
+      note: 'Can’t find it? Open this link in Chrome.',
+    };
+  }
+  return {
+    ask,
+    steps: [`Tap ${key('⋮')} at the top right.`, 'Tap <b>Install and create shortcut</b> (or <b>Add to Home screen</b>).', 'Tap <b>Install</b>.'],
+  };
+}
+
+// Someone Mom shared Paradise with, opening her link in their browser: before anything else, the
+// page shows them how to keep it on their Home screen, so from then on it opens like an app.
+// Opened from the Home screen it's an app already, so this never shows there (or on Mom's phone).
+function showInstallGuide() {
+  const guide = $('#install-guide');
+  const { ask, steps, note, later } = installSteps();
+  $('#guide-ask').innerHTML = ask;
+  $('#guide-steps').innerHTML = steps.map(step => `<li><span>${step}</span></li>`).join('');
+  $('#guide-note').innerHTML = note ?? '';
+  $('#guide-note').hidden = !note;
+  if (later) $('#guide-later').textContent = later;
+  guide.hidden = false;
+  document.body.classList.add('guide-on');
+  photos.hold('guide', true);
+
+  // Where the browser can install it in one tap (Chrome, Samsung Internet), one big button does it all.
+  const offerButton = () => {
+    $('#guide-install').hidden = !installPrompt;
+    $('#guide-steps').hidden = !!installPrompt;
+  };
+  const installed = () => {
+    guide.classList.add('installed');
+    $('#guide-later').textContent = 'Keep looking here';
+  };
+  offerButton();
+  addEventListener('beforeinstallprompt', offerButton);
+  addEventListener('appinstalled', installed);
+  $('#guide-install').onclick = async () => {
+    if (await install()) installed();
+    else offerButton();           // they said no to the browser's box: the steps are still there
+  };
+  $('#guide-later').onclick = () => {
+    guide.classList.add('leaving');
+    document.body.classList.remove('guide-on');
+    photos.hold('guide', false);
+    setTimeout(() => { guide.hidden = true; }, 600);
+  };
+
+  fontReady().then(() => {
+    const end = writeOut($('#guide-title'), 'Paradise', 150, 80);
+    $('#guide-flourish').innerHTML = FLOURISH;
+    $('#guide-flourish').style.setProperty('--draw-delay', `${end}ms`);
+  });
+}
+
+// The browser's own "Install app?" box. Each offer can be used only once.
+async function install() {
+  const offer = installPrompt;
+  if (!offer) return false;
+  installPrompt = null;
+  $('#btn-install').hidden = true;
+  $('#install-tip').hidden = false;
+  offer.prompt();
+  const { outcome } = await offer.userChoice;
+  return outcome === 'accepted';
+}
+
+function setUpInstall() {
+  $('#install-box').hidden = isInstalledApp();
+  const { steps } = installSteps();
+  $('#install-tip').innerHTML = `To keep Paradise on your Home screen:<ol>${steps.map(step => `<li>${step}</li>`).join('')}</ol>`;
   addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
+    e.preventDefault();           // no browser banner: the app offers it at the right moment instead
     installPrompt = e;
     $('#btn-install').hidden = false;
     $('#install-tip').hidden = true;
   });
-  $('#btn-install').onclick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    installPrompt = null;
-    if (outcome === 'accepted') $('#install-box').hidden = true;
-  };
+  $('#btn-install').onclick = async () => { if (await install()) $('#install-box').hidden = true; };
   addEventListener('appinstalled', () => { $('#install-box').hidden = true; });
+}
+
+// Her Saved photos and favorite songs live in the app's storage on the phone. A phone that runs out
+// of space may clear websites' storage, unless the app asks it not to; installed apps are allowed to
+// ask without a question popping up. (Firefox would pop one up, so it isn't asked there.)
+function keepSavesSafe() {
+  if (isInstalledApp() && !/Firefox/.test(navigator.userAgent)) navigator.storage?.persist?.().catch(() => {});
 }
 
 // ------------------------------------------------------------------ keep the screen on

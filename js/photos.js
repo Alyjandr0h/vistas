@@ -81,6 +81,7 @@ let shown = null;               // { p, img } on screen right now
 let sinceAnimal = load('photos.sinceAnimal', 99);
 let seconds = load('photos.seconds', 20);
 let saved = load('photos.saved', []);
+let justSavedAt = 0;
 const listeners = new Set();
 
 // Pausing: she can pause (going Back pauses too), and the app holds the slideshow
@@ -93,7 +94,8 @@ let showToken = 0, failures = 0, clockTimer = 0;
 // ------------------------------------------------------------------ start
 
 // `startWithFirstPhoto`: the letter is showing, so Mount Shuksan is waiting behind it.
-export async function init(elements, { startWithFirstPhoto = false } = {}) {
+// `startTall`: the install steps cover the bottom of the screen, so open on a photo that fills it.
+export async function init(elements, { startWithFirstPhoto = false, startTall = false } = {}) {
   el = elements;
   bindGestures();
   document.addEventListener('visibilitychange', () => hold('away', document.hidden));
@@ -120,6 +122,7 @@ export async function init(elements, { startWithFirstPhoto = false } = {}) {
     return show();
   }
   at = history.length - 1;
+  if (startTall && upright() && tallBag.items.length) upcoming = tallBag.next();
   return next();                  // every visit opens on something new
 }
 
@@ -301,6 +304,7 @@ const fileNameFor = p => `${(p.t || 'Photo').replace(/[\\/:*?"<>|]+/g, ' ').repl
 function renderSaved() {
   const on = !!shown && isSaved(shown.p);
   el.save.classList.toggle('is-saved', on);
+  el.save.setAttribute('aria-pressed', String(on));
   el.saveLabel.textContent = on ? 'Saved' : 'Save';
   el.savedCount.textContent = saved.length ? String(saved.length) : '';
 }
@@ -346,6 +350,7 @@ export async function savePhoto(p, loadedUrl) {
     else await downloadToPhone(p);
     saved = [{ ...p, savedAt: Date.now() }, ...saved];
     save('photos.saved', saved);
+    justSavedAt = Date.now();
     window.caches?.open('saved-photos').then(c => c.add(photoUrl(p, 330))).catch(() => {});
     toast(isApple ? 'Saved' : 'Saved to your Gallery');
     return true;
@@ -357,11 +362,22 @@ export async function savePhoto(p, loadedUrl) {
   }
 }
 
+// The heart works both ways, like the one on songs: tapped again, it takes the photo back out of
+// Saved. The copy in her Gallery stays (a web app can't delete files, and she doesn't need it to).
+// A second tap right after saving is a double tap, not a change of heart, so it's ignored.
+export async function toggleSaved(p, loadedUrl) {
+  if (!isSaved(p)) return savePhoto(p, loadedUrl);
+  if (Date.now() - justSavedAt < 1500) return true;
+  removeSaved(p);
+  toast(isApple ? 'Removed from Saved. It’s still in your Photos.' : 'Removed from Saved. It’s still in your Gallery.');
+  return false;
+}
+
 export async function saveCurrent() {
   if (!shown) return;
   el.save.disabled = true;
   try {
-    await savePhoto(shown.p, shown.img.currentSrc);
+    await toggleSaved(shown.p, shown.img.currentSrc);
   } finally {
     el.save.disabled = false;
   }
