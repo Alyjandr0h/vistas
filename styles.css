@@ -479,7 +479,7 @@ svg.inline { width: 19px; height: 19px; vertical-align: -3px; }
 .toast {
   position: fixed; z-index: 40; left: 50%; bottom: calc(var(--bottom-gap) + 14px);
   transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
-  max-width: calc(100% - 32px); padding: 13px 20px; border-radius: 999px;
+  max-width: calc(100% - 32px); padding: 13px 20px; border-radius: 23px;   /* a pill on one line, still neat on two */
   background: var(--ink); color: var(--on-ink); font-weight: 650; font-size: 15px; text-align: center;
   box-shadow: 0 10px 30px -10px rgb(0 0 0 / .7);
   transition: opacity .25s ease, transform .25s ease;

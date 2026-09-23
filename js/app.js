@@ -301,7 +301,7 @@ function openViewer(p, { fromSaved = false, loadedUrl } = {}) {
   showSaved(photos.isSavedPhoto(p));
   saveButton.onclick = async () => {
     saveButton.disabled = true;
-    showSaved(await photos.toggleSaved(p, loadedUrl));
+    showSaved(await photos.toggleSaved(p));
     saveButton.disabled = false;
   };
   $('#v-share').onclick = () => photos.sharePhoto(p, loadedUrl);
@@ -311,7 +311,7 @@ function openViewer(p, { fromSaved = false, loadedUrl } = {}) {
     photos.removeSaved(p);
     renderSavedGrid();
     history.back();
-    toast('Removed from this list. It’s still in your Gallery.');
+    toast(photos.onApple() ? 'Removed from this list' : 'Removed from this list. It’s still in your Gallery.');
   };
   openSheet($('#viewer'));
 }
@@ -496,7 +496,7 @@ async function shareApp() {
     if (navigator.share) await navigator.share({ title: 'Paradise', text, url });
     else {
       await navigator.clipboard.writeText(url);
-      toast('Link copied');
+      toast('Copied the link to Paradise. Paste it into a message or email.', 4000);
     }
   } catch (err) {
     if (err?.name !== 'AbortError') toast('Couldn’t share just now. Try again?');
@@ -505,6 +505,11 @@ async function shareApp() {
 
 function setUpInfo() {
   $('#btn-share-app').onclick = shareApp;
+  if (photos.onApple()) {         // there the heart keeps photos in Saved; Share puts them in Photos
+    $('#howto-save').innerHTML = '<b>Save</b> keeps the photo in <b>Saved</b> here. To put it in your Photos, tap '
+      + '<b>Share</b>, then <b>Save Image</b>. Saved one by mistake? Tap the heart again.';
+    $('#saved-where').innerHTML = 'To put one in your <b>Photos</b>, open it and tap <b>Share</b>, then <b>Save Image</b>.';
+  }
   const lines = forMom ? letterLines() : [];
   if (lines.length) {
     $('#note').replaceChildren(...lines.map((line, i) => {
@@ -540,6 +545,7 @@ const isInstalledApp = () => navigator.standalone === true
 // renamed "Add to Home screen" to "Install and create shortcut"; older phones still show the old name.)
 const key = symbol => `<b class="key">${symbol}</b>`;
 const SHARE_BUTTON = '<b>Share</b> <svg class="inline"><use href="#i-ios-share"/></svg>';
+const PAGE_MENU = key('<svg class="inline"><use href="#i-page-menu"/></svg>');
 
 function installSteps() {
   const ua = navigator.userAgent;
@@ -556,14 +562,14 @@ function installSteps() {
   }
   if (photos.onApple()) {
     const inSafari = !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-    const where = /iPad|Macintosh/.test(ua) ? 'at the top right' : 'at the bottom of the screen';
+    const safari = Number(ua.match(/Version\/(\d+)/)?.[1] ?? 0);
+    // Safari 26 moved Share into the page menu: the button at the left end of the web address.
+    const first = !inSafari ? `Tap ${SHARE_BUTTON} next to the web address.`
+      : safari >= 26 ? `Tap ${PAGE_MENU} at the left of the web address, then tap <b>Share</b>.`
+      : `Tap ${SHARE_BUTTON} ${/iPad|Macintosh/.test(ua) ? 'at the top right' : 'at the bottom of the screen'}.`;
     return {
       ask: 'Add it to your Home Screen, so it opens like an app:',
-      steps: [
-        inSafari ? `Tap ${SHARE_BUTTON} ${where}. Don’t see it? Tap ${key('⋯')} first.` : `Tap ${SHARE_BUTTON} next to the web address.`,
-        'Scroll down and tap <b>Add to Home Screen</b>.',
-        'Tap <b>Add</b>.',
-      ],
+      steps: [first, 'Tap <b>Add to Home Screen</b>. (Scroll down or tap <b>View More</b> to find it.)', 'Tap <b>Add</b>.'],
       note: 'Not in the list? Open this link in Safari and try there.',
     };
   }

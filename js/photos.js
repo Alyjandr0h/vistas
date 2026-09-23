@@ -327,49 +327,75 @@ async function downloadToPhone(p) {
   setTimeout(() => URL.revokeObjectURL(link.href), 60_000);
 }
 
-// iPhone and iPad keep downloads in the Files app, so there Save goes through the share sheet,
-// whose "Save Image" puts the photo in Photos. (iPads say they're Macs; the touch screen gives them away.)
+// iPhones and iPads keep downloads in the Files app, not in Photos, so Save works differently there
+// (see saveOnApple). iPads say they're Macs; the touch screen gives them away.
 const isApple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
-async function saveThroughShareSheet(p, loadedUrl) {
-  const blob = await fetchBlob(loadedUrl || photoUrl(p, 1920));
-  await navigator.share({ files: [new File([blob], fileNameFor(p), { type: 'image/jpeg' })] });
+// While the phone's share menu is open the slideshow waits, so the photo doesn't change underneath
+// it. And on iPhones, the tap that closes the menu also lands on the photo, where it would hide
+// the buttons, so taps are ignored for a moment afterwards.
+let shareSheetOpen = false, shareSheetClosedAt = 0;
+async function withShareSheet(open) {
+  shareSheetOpen = true;
+  hold('share-sheet', true);
+  try {
+    return await open();
+  } finally {
+    shareSheetOpen = false;
+    shareSheetClosedAt = Date.now();
+    hold('share-sheet', false);
+  }
 }
 
 export const isSavedPhoto = p => isSaved(p);
 
+function addToSaved(p) {
+  saved = [{ ...p, savedAt: Date.now() }, ...saved];
+  save('photos.saved', saved);
+  justSavedAt = Date.now();
+  window.caches?.open('saved-photos').then(c => c.add(photoUrl(p, 330))).catch(() => {});
+  renderSaved();
+}
+
 // Saves any photo to the phone and to the Saved list (from the slideshow, or the music screen).
 // Returns true once it's saved.
-export async function savePhoto(p, loadedUrl) {
+export async function savePhoto(p) {
   if (isSaved(p)) {
-    toast(isApple ? 'Already saved. It’s in your Photos.' : 'Already saved. It’s in your Gallery.');
+    toast(isApple ? 'Already saved' : 'Already saved. It’s in your Gallery.');
     return true;
   }
+  if (isApple) return saveOnApple(p);
   try {
-    if (isApple && navigator.canShare) await saveThroughShareSheet(p, loadedUrl);
-    else await downloadToPhone(p);
-    saved = [{ ...p, savedAt: Date.now() }, ...saved];
-    save('photos.saved', saved);
-    justSavedAt = Date.now();
-    window.caches?.open('saved-photos').then(c => c.add(photoUrl(p, 330))).catch(() => {});
-    toast(isApple ? 'Saved' : 'Saved to your Gallery');
-    return true;
-  } catch (e) {
-    if (e?.name !== 'AbortError') toast('Couldn’t save it. Check the internet and try again.');
+    await downloadToPhone(p);
+  } catch {
+    toast('Couldn’t save it. Check the internet and try again.');
     return false;
-  } finally {
-    renderSaved();
   }
+  addToSaved(p);
+  toast('Saved to your Gallery');
+  return true;
+}
+
+// On an iPhone or iPad a web app can't put a photo in Photos by itself: only the share menu's
+// "Save Image" can, and a menu popping up on every heart is too much. So there the heart just
+// keeps it in Saved, and Share, then Save Image, puts it in Photos. The first save says so.
+function saveOnApple(p) {
+  addToSaved(p);
+  const firstTime = !load('photos.appleTip', false);
+  save('photos.appleTip', true);
+  if (firstTime) toast('Saved. To put it in your Photos too, tap Share, then Save Image.', 6000);
+  else toast('Saved');
+  return true;
 }
 
 // The heart works both ways, like the one on songs: tapped again, it takes the photo back out of
 // Saved. The copy in her Gallery stays (a web app can't delete files, and she doesn't need it to).
 // A second tap right after saving is a double tap, not a change of heart, so it's ignored.
-export async function toggleSaved(p, loadedUrl) {
-  if (!isSaved(p)) return savePhoto(p, loadedUrl);
+export async function toggleSaved(p) {
+  if (!isSaved(p)) return savePhoto(p);
   if (Date.now() - justSavedAt < 1500) return true;
   removeSaved(p);
-  toast(isApple ? 'Removed from Saved. It’s still in your Photos.' : 'Removed from Saved. It’s still in your Gallery.');
+  toast(isApple ? 'Removed from Saved' : 'Removed from Saved. It’s still in your Gallery.');
   return false;
 }
 
@@ -377,7 +403,7 @@ export async function saveCurrent() {
   if (!shown) return;
   el.save.disabled = true;
   try {
-    await toggleSaved(shown.p, shown.img.currentSrc);
+    await toggleSaved(shown.p);
   } finally {
     el.save.disabled = false;
   }
@@ -392,12 +418,12 @@ export async function sharePhoto(p, alreadyLoadedUrl) {
     const file = new File([blob], fileNameFor(p), { type: 'image/jpeg' });
     const text = [p.t, `(Photo: ${p.a}, ${p.l})`].filter(Boolean).join('\n');
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text });
+      await withShareSheet(() => navigator.share({ files: [file], text }));
     } else if (navigator.share) {
-      await navigator.share({ title: p.t, text, url: sourcePage(p) });
-    } else {
+      await withShareSheet(() => navigator.share({ title: p.t, text, url: sourcePage(p) }));
+    } else {                      // a computer with no share menu: copy a link to the photo instead
       await navigator.clipboard.writeText(sourcePage(p));
-      toast('Link copied');
+      toast('Copied a link to this photo. Paste it into a message or email.', 4000);
     }
   } catch (e) {
     if (e?.name !== 'AbortError') toast('Couldn’t share that one. Try again?');
@@ -461,6 +487,7 @@ function bindGestures() {
   el.stage.addEventListener('pointerup', e => {
     if (!down) return;
     down = false;
+    if (shareSheetOpen || Date.now() < shareSheetClosedAt + 700) return;   // the tap that closed the share menu
     const dx = e.clientX - x0, dy = e.clientY - y0;
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
       if (dx < 0) next(); else back();

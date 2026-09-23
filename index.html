@@ -47,6 +47,7 @@
   <symbol id="i-prev-song" viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M19 5.5v13L9 12z" fill="currentColor"/></symbol>
   <symbol id="i-next-song" viewBox="0 0 24 24"><path d="M18 5v14"/><path d="M5 5.5v13L15 12z" fill="currentColor"/></symbol>
   <symbol id="i-ios-share" viewBox="0 0 24 24"><path d="M12 14.5V3M8 6.5l4-4 4 4"/><path d="M8.5 9.5h-2A1.5 1.5 0 005 11v8.5A1.5 1.5 0 006.5 21h11a1.5 1.5 0 001.5-1.5V11a1.5 1.5 0 00-1.5-1.5h-2"/></symbol>
+  <symbol id="i-page-menu" viewBox="0 0 24 24"><path d="M4.5 7h8M4.5 12h15M4.5 17h10.5"/></symbol>
   <symbol id="i-add-home" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
 </svg>
@@ -154,7 +155,7 @@
   <div class="body">
     <div id="saved-grid" class="grid"></div>
     <p id="saved-empty" class="empty">Nothing saved yet.<br>Tap <b>Save</b> on any photo you love.</p>
-    <p class="fine">Saved photos are also in your <b>Gallery</b> app, in the <b>Download</b> album.</p>
+    <p id="saved-where" class="fine">Saved photos are also in your <b>Gallery</b> app, in the <b>Download</b> album.</p>
   </div>
 </section>
 
@@ -188,7 +189,7 @@
 
     <h3>How it works</h3>
     <ul class="howto">
-      <li><svg><use href="#i-heart"/></svg><span><b>Save</b> puts the photo in your Gallery (on an iPad: tap <b>Save Image</b>) and in <b>Saved</b> here. Saved one by mistake? Tap the heart again.</span></li>
+      <li><svg><use href="#i-heart"/></svg><span id="howto-save"><b>Save</b> puts the photo in your Gallery and in <b>Saved</b> here. Saved one by mistake? Tap the heart again.</span></li>
       <li><svg><use href="#i-back"/></svg><span><b>Back</b> brings back a photo you missed.</span></li>
       <li><svg><use href="#i-share"/></svg><span><b>Share</b> sends it by text message or WhatsApp.</span></li>
       <li><svg><use href="#i-frame"/></svg><span><b>Screen saver</b> plays the photos full screen. Tap anywhere to stop.</span></li>
