@@ -24,26 +24,37 @@ const $ = selector => document.querySelector(selector);
 const openSheets = [];
 let greetTimer = 0;
 
-// Hand-drawn line ornaments that go with the calligraphy. Every path has pathLength="1", so CSS
-// can draw it in like a pen stroke (stroke-dashoffset from 1 to 0).
+// Hand-drawn ornaments in the spirit of her own penwork: black ink lines, green shading on the
+// inside of the curls, green leaves and buds. Every path has pathLength="1", so CSS can draw it in
+// like a pen stroke (stroke-dashoffset from 1 to 0), and the green fills in afterwards.
 const vine = corner => `<svg class="vine ${corner}" viewBox="0 0 120 120" aria-hidden="true">
-  <path pathLength="1" d="M22 14 C16 10 10 14 14 22"/>
-  <path pathLength="1" d="M14 22 C30 8 56 6 78 10 C92 13 102 12 112 6"/>
-  <path pathLength="1" d="M22 14 C8 30 6 56 10 78 C13 92 12 102 6 112"/>
-  <path pathLength="1" d="M56 8 C52 20 64 24 66 16 C67 11 61 10 60 14"/>
-  <path pathLength="1" d="M8 56 C20 52 24 64 16 66 C11 67 10 61 14 60"/>
-  <path pathLength="1" d="M34 10 C38 2 47 1 50 3 C46 9 40 11 34 10 M34 10 L46 5"/>
-  <path pathLength="1" d="M86 11 C90 18 98 21 102 19 C99 13 93 11 86 11 M86 11 L98 17"/>
-  <path pathLength="1" d="M10 34 C2 38 1 47 3 50 C9 46 11 40 10 34 M10 34 L5 46"/>
-  <path pathLength="1" d="M11 86 C18 90 21 98 19 102 C13 99 11 93 11 86 M11 86 L17 98"/>
-  <circle cx="112" cy="6" r="2.2"/><circle cx="6" cy="112" r="2.2"/><circle cx="27" cy="27" r="1.6"/>
+  <g class="shade">
+    <path pathLength="1" d="M22 14 C16 10 10 14 14 22" transform="translate(1.6 1.6)"/>
+    <path pathLength="1" d="M56 8 C52 20 64 24 66 16 C67 11 61 10 60 14" transform="translate(-1.4 1.2)"/>
+    <path pathLength="1" d="M8 56 C20 52 24 64 16 66 C11 67 10 61 14 60" transform="translate(1.2 -1.4)"/>
+  </g>
+  <g class="line">
+    <path pathLength="1" d="M22 14 C16 10 10 14 14 22"/>
+    <path pathLength="1" d="M14 22 C30 8 56 6 78 10 C92 13 102 12 112 6"/>
+    <path pathLength="1" d="M22 14 C8 30 6 56 10 78 C13 92 12 102 6 112"/>
+    <path pathLength="1" d="M56 8 C52 20 64 24 66 16 C67 11 61 10 60 14"/>
+    <path pathLength="1" d="M8 56 C20 52 24 64 16 66 C11 67 10 61 14 60"/>
+  </g>
+  <g class="leaves">
+    <path pathLength="1" d="M34 10 C38 2 47 1 50 3 C46 9 40 11 34 10 M34 10 L46 5"/>
+    <path pathLength="1" d="M86 11 C90 18 98 21 102 19 C99 13 93 11 86 11 M86 11 L98 17"/>
+    <path pathLength="1" d="M10 34 C2 38 1 47 3 50 C9 46 11 40 10 34 M10 34 L5 46"/>
+    <path pathLength="1" d="M11 86 C18 90 21 98 19 102 C13 99 11 93 11 86 M11 86 L17 98"/>
+  </g>
+  <circle class="bud" cx="112" cy="6" r="2.6"/><circle class="bud" cx="6" cy="112" r="2.6"/>
+  <circle class="bud" cx="60" cy="14" r="1.8"/><circle class="bud" cx="14" cy="60" r="1.8"/>
 </svg>`;
 const FLOURISH = `<svg class="flourish" viewBox="0 0 240 32" aria-hidden="true">
   <path pathLength="1" d="M118 20 C104 26 92 24 80 16 C66 7 44 6 30 14 C22 19 22 27 30 27 C36 27 38 20 32 18"/>
   <path pathLength="1" d="M122 20 C136 26 148 24 160 16 C174 7 196 6 210 14 C218 19 218 27 210 27 C204 27 202 20 208 18"/>
-  <path pathLength="1" d="M120 20 C114 12 116 6 120 3 C124 6 126 12 120 20"/>
-  <path pathLength="1" d="M120 19 C112 17 108 12 109 9 C114 9 118 13 120 19"/>
-  <path pathLength="1" d="M120 19 C128 17 132 12 131 9 C126 9 122 13 120 19"/>
+  <path class="leaf" pathLength="1" d="M120 20 C114 12 116 6 120 3 C124 6 126 12 120 20"/>
+  <path class="leaf" pathLength="1" d="M120 19 C112 17 108 12 109 9 C114 9 118 13 120 19"/>
+  <path class="leaf" pathLength="1" d="M120 19 C128 17 132 12 131 9 C126 9 122 13 120 19"/>
 </svg>`;
 const addVines = el => el.insertAdjacentHTML('afterbegin', vine('tl') + vine('br'));
 

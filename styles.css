@@ -121,23 +121,32 @@ svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; s
 .paper .signature { margin: .6em 0 0; text-align: right; padding-right: 18px; }
 .letter.done .ink { animation: none; -webkit-mask: none; mask: none; }
 
-/* Line ornaments: vines in the corners of her note, a flourish under the greeting.
-   They draw themselves in like a pen stroke (each path is pathLength=1). */
+/* Ornaments in the spirit of her own penwork: black ink lines, green shading inside the curls,
+   green leaves and buds. They draw themselves in like a pen (each path is pathLength=1), and
+   the green goes on after the black, like a second pen. */
 .paper, .note { position: relative; }
 .vine {
+  --green: #4a8f3c;
   position: absolute; width: 88px; height: 88px; pointer-events: none;
-  fill: none; stroke: currentColor; stroke-width: 1.25; opacity: .5;
+  fill: none; stroke: currentColor; stroke-width: 1.3; opacity: .82;
 }
-.vine circle { fill: currentColor; stroke: none; }
 .note .vine { width: 70px; height: 70px; }
 .note .signature { padding-right: 14px; }
 .vine.tl { top: 7px; left: 7px; }
 .vine.br { bottom: 7px; right: 7px; transform: rotate(180deg); }
 .vine path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.vine .shade path { stroke: var(--green); stroke-width: 2.6; stroke-opacity: .5; }
+.vine .leaves path { fill: var(--green); fill-opacity: .85; }
+.vine .bud { fill: var(--green); stroke: none; }
+
 .letter .vine path { stroke-dashoffset: 1; animation: draw 3.2s ease-in-out .4s forwards; }
-.letter .vine circle { opacity: 0; animation: appear .6s ease 3.2s forwards; }
-.letter.done .vine path { animation: none; stroke-dashoffset: 0; }
-.letter.done .vine circle { animation: none; opacity: 1; }
+.letter .vine .shade path { animation: draw 2.4s ease-in-out 1.8s forwards; }
+.letter .vine .leaves path { fill-opacity: 0; animation: draw 3.2s ease-in-out .4s forwards, fill-in .8s ease 3.4s forwards; }
+.letter .vine .bud { opacity: 0; animation: appear .6s ease 3.6s forwards; }
+.letter.done .vine path, .letter.done .vine .shade path { animation: none; stroke-dashoffset: 0; }
+.letter.done .vine .leaves path { animation: none; stroke-dashoffset: 0; fill-opacity: .85; }
+.letter.done .vine .bud { animation: none; opacity: 1; }
+
 #greeting-flourish { display: block; line-height: 0; }
 .flourish {
   width: min(64vw, 300px); height: auto; margin: 4px 0 2px;
@@ -145,8 +154,13 @@ svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; s
   filter: drop-shadow(0 1px 6px rgb(0 0 0 / .45));
 }
 .flourish path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.5s ease-in-out var(--draw-delay, 1s) forwards; }
+.flourish .leaf {
+  fill: #8fcf78; fill-opacity: 0; --fill-to: .9;
+  animation: draw 1.5s ease-in-out var(--draw-delay, 1s) forwards, fill-in .7s ease calc(var(--draw-delay, 1s) + 1.1s) forwards;
+}
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes appear { to { opacity: 1; } }
+@keyframes fill-in { to { fill-opacity: var(--fill-to, .85); } }
 .begin {
   height: 56px; padding: 0 30px; border-radius: 999px; background: var(--ink); color: var(--on-ink);
   font-size: 17px; font-weight: 700; opacity: 0; transform: translateY(8px); pointer-events: none;
