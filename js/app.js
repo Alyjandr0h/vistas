@@ -58,6 +58,20 @@ const FLOURISH = `<svg class="flourish" viewBox="0 0 240 32" aria-hidden="true">
 </svg>`;
 const addVines = el => el.insertAdjacentHTML('afterbegin', vine('tl') + vine('br'));
 
+// Who is using this copy: Mom (the letter, "Good morning, Mom", your note in Help) or someone she
+// shared it with (the same app without the personal parts). Any phone that used the app before
+// sharing existed is hers. On a new phone of hers, the link …/vistas/?for=mom brings the letter back.
+function whoIsThis() {
+  if (new URLSearchParams(location.search).get('for') === 'mom') save('for', 'mom');
+  let who = load('for', null);
+  if (!who) {
+    who = load('welcomed', false) || load('photos.history', null) ? 'mom' : 'friend';
+    save('for', who);
+  }
+  return who;
+}
+const forMom = whoIsThis() === 'mom';
+
 function boot() {
   navigator.serviceWorker?.register('sw.js').catch(() => {});
   // A problem in one part (say, music) must never stop the letter or the photos from showing.
@@ -66,19 +80,23 @@ function boot() {
   }
 
   const firstTime = !load('welcomed', false);
-  if (firstTime) photos.hold('letter', true);
+  const letterFirst = forMom && firstTime;
+  if (letterFirst) photos.hold('letter', true);
   photos.init({
     stage: $('#stage'), status: $('#status'), title: $('#cap-title'), credit: $('#cap-credit'),
     bar: $('#bar'), pause: $('#btn-pause'), pauseIcon: $('#btn-pause use'),
     save: $('#btn-save'), saveLabel: $('#save-label'), savedCount: $('#saved-count'),
-    clockTime: $('#clock-time'), clockTitle: $('#clock-title'),
-  }, { startWithFirstPhoto: firstTime }).catch(err => {
+    clockTime: $('#clock-time'), clockDate: $('#clock-date'),
+  }, { startWithFirstPhoto: letterFirst }).catch(err => {
     console.error(err);
     $('#status').textContent = 'Couldn’t load the photos. Check the internet, then close and reopen the app.';
   });
 
-  if (firstTime) showLetter();
-  else openingScreen();
+  if (letterFirst) showLetter();
+  else if (firstTime) {
+    // Someone Mom shared it with: a welcome instead of the letter, then how it works.
+    openingScreen('Welcome to Paradise', () => { save('welcomed', true); openSheet($('#sheet-info')); });
+  } else openingScreen();
   greetAgainAfterABreak();
   if (!firstTime && new URLSearchParams(location.search).get('open') === 'music') openSheet($('#sheet-music'));
 }
@@ -136,12 +154,12 @@ async function showLetter() {
 }
 
 // Writes the greeting and fades it out on its own. Returns when the writing finishes (ms).
-function greet() {
+function greet(text) {
   const hour = new Date().getHours();
   const hello = hour < 5 ? 'Hello' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const box = $('#greeting'), line = $('#greeting-text');
   line.replaceChildren();
-  const end = writeOut(line, FROM_YOU.name ? `${hello}, ${FROM_YOU.name}` : hello, 200, 70);
+  const end = writeOut(line, text ?? (forMom && FROM_YOU.name ? `${hello}, ${FROM_YOU.name}` : hello), 200, 70);
   $('#greeting-flourish').innerHTML = FLOURISH;          // a fresh copy, so it draws in again
   $('#greeting-flourish').style.setProperty('--draw-delay', `${end}ms`);
   $('#greeting-date').textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
@@ -166,7 +184,7 @@ const isNight = () => { const h = new Date().getHours(); return h >= 19 || h < 6
 
 // Her painting (the day one, or her mountain at night) with the greeting underneath. It fades
 // into the photos once the greeting is written and the first photo is ready; a tap skips it.
-function openingScreen() {
+function openingScreen(greeting, afterwards) {
   const splash = $('#splash');
   $('#splash-art').src = isNight() ? 'img/painting-night.jpg' : 'img/painting-day.jpg';
   splash.hidden = false;
@@ -179,13 +197,13 @@ function openingScreen() {
     splash.classList.add('fade');
     hideGreeting();
     photos.hold('splash', false);
-    setTimeout(() => { splash.hidden = true; }, 900);
+    setTimeout(() => { splash.hidden = true; afterwards?.(); }, 900);
   };
   const closeWhenReady = () => { if (photoReady && greeted) close(); };
   photos.onChange(() => { photoReady = true; closeWhenReady(); });
   splash.addEventListener('click', close);
   fontReady().then(() => {
-    const end = greet();
+    const end = greet(greeting);
     setTimeout(() => { greeted = true; closeWhenReady(); }, end + 1600);
   });
 }
@@ -418,8 +436,25 @@ function renderSongTime() {
 
 // ------------------------------------------------------------------ help and settings
 
+// Shares the plain link (never the ?for=mom one), so whoever gets it has their own copy.
+async function shareApp() {
+  const url = location.origin + location.pathname;
+  const text = 'Paradise: breathtaking photos of the world, and songs from jw.org. '
+    + 'Open the link in Chrome, then tap ⋮ and “Add to Home screen” to keep it as an app.';
+  try {
+    if (navigator.share) await navigator.share({ title: 'Paradise', text, url });
+    else {
+      await navigator.clipboard.writeText(url);
+      toast('Link copied');
+    }
+  } catch (err) {
+    if (err?.name !== 'AbortError') toast('Couldn’t share just now. Try again?');
+  }
+}
+
 function setUpInfo() {
-  const lines = letterLines();
+  $('#btn-share-app').onclick = shareApp;
+  const lines = forMom ? letterLines() : [];
   if (lines.length) {
     $('#note').replaceChildren(...lines.map((line, i) => {
       const p = document.createElement('p');

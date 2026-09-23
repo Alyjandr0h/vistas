@@ -14,6 +14,14 @@ It's a web app she adds to her phone's Home screen, so it opens full screen like
 | `tools/animal_picks.txt` | The hand-picked funny animals |
 | `sw.js` | Makes it installable and lets it open without internet |
 
+## Sharing, and Mom's personal version
+
+- **Share Paradise with someone** (in Help) sends the plain link. Whoever opens it gets the same app
+  without the personal parts: no letter, no "Mom" in the greeting, no note in Help.
+- Mom's phone keeps everything: any phone that used the app before sharing existed counts as hers.
+- On a new phone of hers, open **…/vistas/?for=mom** once (keep that link to yourself) and the
+  letter plays there too.
+
 ## Changing things
 
 - **The letter, her name, your signature:** `FROM_YOU` at the top of `js/app.js`.

@@ -194,7 +194,6 @@ async function show() {
   el.title.textContent = p.t;
   el.title.hidden = !p.t;
   el.credit.textContent = `Photo: ${p.a} · ${p.l}`;
-  el.clockTitle.textContent = p.t;
   renderSaved();
   startTimer();
   preloadNext();
@@ -413,8 +412,12 @@ export function exitSaver() {
   startTimer();
 }
 
+// "11:45" and "Wed, September 23", the way her lock screen shows them (no AM/PM).
 function tickClock() {
-  el.clockTime.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const now = new Date();
+  el.clockTime.textContent = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' })
+    .formatToParts(now).filter(part => part.type !== 'dayPeriod').map(part => part.value).join('').trim();
+  el.clockDate.textContent = now.toLocaleDateString([], { weekday: 'short', month: 'long', day: 'numeric' });
 }
 
 // ------------------------------------------------------------------ touch
