@@ -25,6 +25,19 @@ It's a web app she adds to her phone's Home screen, so it opens full screen like
 - On a new phone of hers, open **…/vistas/?for=mom** once (keep that link to yourself) and the
   letter plays there too.
 
+## How many people use it
+
+Paradise counts with [GoatCounter](https://www.goatcounter.com): no cookies, no names, nothing
+personal. Sign in at **https://STATS_CODE.goatcounter.com** (the code is set in `js/stats.js`;
+empty turns counting off, and test copies on localhost never count). What each line means:
+
+| Line | Counts |
+| --- | --- |
+| `/` | Visits: people opening Paradise (opening it again within 8 hours is the same visit) |
+| `started-using-paradise` | Each new phone that started using it, counted once per phone |
+| `added-to-home-screen` | Phones where it was added to the Home screen |
+| `shared-paradise` | Times someone sent the link from **Share Paradise with someone** |
+
 ## Changing things
 
 - **The letter, her name, your signature:** `FROM_YOU` at the top of `js/app.js`.

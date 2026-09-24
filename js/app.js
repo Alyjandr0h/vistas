@@ -1,5 +1,6 @@
 import * as photos from './photos.js';
 import * as music from './music.js';
+import * as stats from './stats.js';
 import { load, save } from './store.js';
 import { toast } from './toast.js';
 
@@ -102,6 +103,7 @@ function boot() {
     openingScreen('Welcome to Paradise', () => { save('welcomed', true); openSheet($('#sheet-info')); });
   } else openingScreen();
   greetAgainAfterABreak();
+  try { stats.countOpen({ installed: isInstalledApp(), apple: photos.onApple() }); } catch (err) { console.error(err); }
   if (!firstTime && new URLSearchParams(location.search).get('open') === 'music') openSheet($('#sheet-music'));
 }
 
@@ -498,6 +500,7 @@ async function shareApp() {
       await navigator.clipboard.writeText(url);
       toast('Copied the link to Paradise. Paste it into a message or email.', 4000);
     }
+    stats.countShare();
   } catch (err) {
     if (err?.name !== 'AbortError') toast('Couldn’t share just now. Try again?');
   }

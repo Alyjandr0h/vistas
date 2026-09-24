@@ -1,10 +1,10 @@
 // Keeps the app itself working offline and up to date. Photos and songs always come fresh from
 // Wikimedia and jw.org; only the calligraphy font and saved-photo thumbnails are kept on the phone.
 // Bump VERSION whenever the app's files change.
-const VERSION = 'vistas-v14';
+const VERSION = 'vistas-v15';
 const APP_FILES = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'photos.json',
-  'js/app.js', 'js/photos.js', 'js/music.js', 'js/shuffle.js', 'js/store.js', 'js/toast.js',
+  'js/app.js', 'js/photos.js', 'js/music.js', 'js/shuffle.js', 'js/store.js', 'js/toast.js', 'js/stats.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'img/painting-day.jpg', 'img/painting-night.jpg',
 ];
 
