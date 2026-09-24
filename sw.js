@@ -4,7 +4,7 @@
 const VERSION = 'vistas-v15';
 const APP_FILES = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'photos.json',
-  'js/app.js', 'js/photos.js', 'js/music.js', 'js/shuffle.js', 'js/store.js', 'js/toast.js', 'js/stats.js',
+  'js/app.js', 'js/photos.js', 'js/music.js', 'js/shuffle.js', 'js/store.js', 'js/toast.js', 'js/stats.js', 'js/songbook-2009.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'img/painting-day.jpg', 'img/painting-night.jpg',
 ];
 

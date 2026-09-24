@@ -1,6 +1,7 @@
 import { load, save } from './store.js';
 import { ShuffleBag } from './shuffle.js';
 import { toast } from './toast.js';
+import { SING_TO_JEHOVAH_2009 } from './songbook-2009.js';
 
 // Songs are listed and played straight from jw.org; nothing is copied or stored anywhere else.
 // jw.org's terms allow free, non-commercial apps that play/download files from its public pages.
@@ -19,15 +20,22 @@ export const PLAYLISTS = [
     sources: ['VODConvMusic'] },
   { key: 'kingdomhall', name: 'Kingdom Hall songs', blurb: '“Sing Out Joyfully” to Jehovah, sung',
     sources: ['SJJChorus'] },
+  { key: 'meetings', name: 'Kingdom Hall music', blurb: 'Music only, as it’s played at meetings',
+    sources: ['SJJMeetings'] },
+  { key: 'piano', name: 'Piano', blurb: 'Kingdom songs on piano, from the 2009 songbook',
+    sources: ['Piano2009'] },
   { key: 'melodies', name: 'Kingdom Melodies', blurb: 'Orchestral and calm',
     sources: ['KingdomMelodies'] },
+  { key: 'children', name: 'Children’s songs', blurb: 'From “Become Jehovah’s Friend”',
+    sources: ['AudioChildrenSongs'] },
   { key: 'favorites', name: 'My favorites', blurb: 'Songs you’ve hearted' },
 ];
 const SOURCES = [...new Set(PLAYLISTS.flatMap(p => p.sources ?? []))];
 const SOURCE_NAMES = {
   AudioOriginalSongs: 'Original Songs', VODOriginalSongs: 'Original Songs', MakingMusic: 'Making Music',
   AudioInternationalMusic: 'International Music', VODConvMusic: 'Convention music',
-  SJJChorus: '“Sing Out Joyfully” to Jehovah', KingdomMelodies: 'Kingdom Melodies',
+  SJJChorus: '“Sing Out Joyfully” to Jehovah', SJJMeetings: 'Kingdom Hall music',
+  Piano2009: 'Piano · Sing to Jehovah', KingdomMelodies: 'Kingdom Melodies', AudioChildrenSongs: 'Children’s Songs',
 };
 export const sourceName = key => SOURCE_NAMES[key] ?? 'jw.org';
 export const playlistName = key => PLAYLISTS.find(p => p.key === key)?.name ?? '';
@@ -104,6 +112,37 @@ async function fetchCollection(key) {
   });
 }
 
+// The 2009 songbook's piano recordings are still on jw.org, listed only under other languages. The
+// piano has no words, so every language's copy is the same recording (these four have all 135);
+// the English titles come from songbook-2009.js.
+const PIANO_URL = lang =>
+  `https://b.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?output=json&pub=iasn&fileformat=MP3&alllangs=0&langwritten=${lang}`;
+const PIANO_LANGUAGES = ['CE', 'J', 'TL', 'CN'];
+
+async function fetchPiano() {
+  for (const lang of PIANO_LANGUAGES) {
+    try {
+      const res = await fetch(PIANO_URL(lang));
+      if (!res.ok) continue;
+      const files = (await res.json()).files?.[lang]?.MP3 ?? [];
+      const songs = files.filter(f => f.mimetype === 'audio/mpeg' && f.file?.url).map(f => {
+        const n = parseInt(f.title, 10) || f.track;
+        return {
+          id: `iasn-${n}`,
+          t: `${n}. ${SING_TO_JEHOVAH_2009[n - 1] ?? `Song ${n}`}`,
+          c: 'Piano2009',
+          d: Math.round(f.duration || 0),
+          u: f.file.url,
+        };
+      });
+      if (songs.length) return songs;
+    } catch { /* try the next language */ }
+  }
+  throw new Error('Piano2009: not found');
+}
+
+const fetchSource = key => (key === 'Piano2009' ? fetchPiano() : fetchCollection(key));
+
 // Kingdom Melodies are titled with song numbers only, like "195, 224".
 const tidyTitle = t => (/^[\d,\s]+$/.test(t) ? `${t.includes(',') ? 'Songs' : 'Song'} ${t}` : t.trim());
 // "It Will Not Be Late! (2023 Convention Song—Lyrics)" and "It Will Not Be Late!" are the same song.
@@ -112,10 +151,11 @@ const playlistOf = source => PLAYLISTS.find(p => p.sources?.includes(source))?.k
 
 // New songs on jw.org show up on their own: the lists are re-checked twice a day.
 function refresh(force = false) {
-  const fresh = catalog && catalog.lang === LANGUAGE && Date.now() - catalog.at < CHECK_FOR_NEW_SONGS;
+  const fresh = catalog && catalog.lang === LANGUAGE && catalog.sources === SOURCES.join()
+    && Date.now() - catalog.at < CHECK_FOR_NEW_SONGS;   // a new playlist means checking right away
   if (fresh && !force) return Promise.resolve();
   loading ??= (async () => {
-    const results = await Promise.allSettled(SOURCES.map(fetchCollection));
+    const results = await Promise.allSettled(SOURCES.map(fetchSource));
     if (!results.some(r => r.status === 'fulfilled')) return;   // offline: keep what we have
     const seen = new Set();
     const list = results.flatMap((r, i) => (r.status === 'fulfilled'
@@ -125,7 +165,7 @@ function refresh(force = false) {
         const key = `${playlistOf(s.c)}:${sameSong(s.t)}`;
         return !seen.has(key) && seen.add(key);
       });
-    catalog = { at: Date.now(), lang: LANGUAGE, songs: list };
+    catalog = { at: Date.now(), lang: LANGUAGE, sources: SOURCES.join(), songs: list };
     save('music.catalog2', catalog);
     useSongs(list);
   })().catch(() => {}).finally(() => { loading = null; });

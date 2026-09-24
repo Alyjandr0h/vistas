@@ -78,3 +78,8 @@ Then open http://localhost:5173.
   she shares one.
 - **Music:** played straight from jw.org's public song lists and MP3 files. Nothing is copied or stored
   elsewhere, which is what jw.org's terms allow for free, non-commercial apps.
+  - The **Piano** playlist is the 2009 songbook's piano recordings (*Sing to Jehovah—Piano
+    Accompaniment*). jw.org still hosts them, but lists them only under other languages; the piano has
+    no words, so the app plays that copy with the English titles in `js/songbook-2009.js`.
+  - The 1984 songbook's piano recordings (*Sing Praises to Jehovah*) are no longer on jw.org, so they
+    can't be included.
